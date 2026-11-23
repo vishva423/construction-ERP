@@ -1,0 +1,1 @@
+export default function FinancePage() { return <><div className="page-header"><div><h1>Finance</h1><p>Scheduled for Phase 5</p></div></div><section className="panel"><div className="empty">Finance management is not implemented in Phase 1.</div></section></>; }

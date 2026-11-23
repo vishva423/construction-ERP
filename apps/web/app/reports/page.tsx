@@ -1,0 +1,1 @@
+export default function ReportsPage() { return <><div className="page-header"><div><h1>Reports</h1><p>Scheduled for later phases</p></div></div><section className="panel"><div className="empty">Reporting APIs are not implemented in Phase 1.</div></section></>; }

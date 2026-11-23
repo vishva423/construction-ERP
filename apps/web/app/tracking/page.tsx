@@ -1,0 +1,1 @@
+export default function TrackingPage() { return <><div className="page-header"><div><h1>Live Tracking</h1><p>Scheduled for Phase 4</p></div></div><section className="panel"><div className="empty">GPS tracking is not implemented in Phase 1.</div></section></>; }
