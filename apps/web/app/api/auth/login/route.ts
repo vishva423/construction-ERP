@@ -38,27 +38,28 @@ export async function POST(request: Request) {
   const host = request.headers.get('host');
   const hostname = host ? new URL(`http://${host}`).hostname.replace(/^\[|\]$/g, '') : '';
   const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(hostname);
-  const isLocalAdminDemo = body.demo === true
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isLocalCredentialLogin = !isProduction
     && isLocalHost
-    && process.env.DEV_LOGIN_ENABLED === 'true'
-    && process.env.NODE_ENV !== 'production';
+    && process.env.DEV_LOGIN_ENABLED === 'true';
+  const isLocalAdminDemo = body.demo === true
+    && isLocalCredentialLogin;
 
   if (body.demo === true && !isLocalAdminDemo) {
     return NextResponse.json({ demo: true, role: 'DEMO_VIEWER' });
   }
 
-  if (!isLocalAdminDemo
-    && (process.env.DEV_LOGIN_ENABLED !== 'true' || !isLocalHost || process.env.NODE_ENV === 'production')) {
+  if (!isLocalAdminDemo && !isLocalCredentialLogin && !isProduction) {
     return NextResponse.json({ message: 'Local demo sign-in is disabled.' }, { status: 404 });
   }
 
-  const configuredIdentifier = process.env.DEV_LOGIN_EMAIL?.trim();
-  const configuredPassword = process.env.DEV_LOGIN_PASSWORD;
+  const configuredIdentifier = (isProduction ? process.env.ADMIN_LOGIN_EMAIL : process.env.DEV_LOGIN_EMAIL)?.trim();
+  const configuredPassword = isProduction ? process.env.ADMIN_LOGIN_PASSWORD : process.env.DEV_LOGIN_PASSWORD;
   const accessSecret = process.env.JWT_ACCESS_SECRET;
   const refreshSecret = process.env.JWT_REFRESH_SECRET;
 
   if (!configuredIdentifier || !configuredPassword || !accessSecret || !refreshSecret) {
-    return NextResponse.json({ message: 'Local demo sign-in is not fully configured.' }, { status: 503 });
+    return NextResponse.json({ message: 'Admin sign-in is not fully configured.' }, { status: 503 });
   }
 
   const submittedIdentifier = typeof body.email === 'string'

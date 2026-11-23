@@ -22,7 +22,7 @@ Monorepo: `apps/web` (Next.js), `apps/api` (NestJS + Prisma), `apps/mobile` (Flu
 ## Web experience
 - Public company website: http://localhost:3000
 - Team sign-in: http://localhost:3000/login
-- The login page offers a public interactive demo with fictional records stored only in each visitor's browser; it has no company API access. A no-password `SUPER_ADMIN` demo is available only on localhost when `DEV_LOGIN_ENABLED=true`; it is disabled in production.
+- The login page offers a public interactive demo with fictional records stored only in each visitor's browser; it has no company API access. A no-password `SUPER_ADMIN` demo is available only on localhost when `DEV_LOGIN_ENABLED=true`. Vercel admin sign-in uses `ADMIN_LOGIN_EMAIL` and `ADMIN_LOGIN_PASSWORD`, plus unique `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` values configured in Vercel Environment Variables. Admin sign-in does not replace the missing API or database; API-backed records remain unavailable until those services are deployed.
 - Operations dashboard: http://localhost:3000/dashboard
 - Project progress workspace: http://localhost:3000/progress
 - Public site service cards expand into accessible capability details; project records remain in the authenticated team workspace.
