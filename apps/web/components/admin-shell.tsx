@@ -105,7 +105,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   }
 
   if (demoMode) {
-    return <main className="demo-access-notice">Read-only demo access only. <Link href="/demo">Return to demo</Link></main>;
+    return <main className="demo-access-notice">Demo access is limited to the browser-only sample workspace. <Link href="/demo">Return to demo</Link></main>;
   }
 
   return (

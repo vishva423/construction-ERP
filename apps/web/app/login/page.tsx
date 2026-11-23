@@ -169,7 +169,7 @@ export default function LoginPage() {
             onClick={() => void signIn({ demo: true }, 'Demo visitor')}
             type="button"
           >
-            {isLocalHost ? 'Continue as local admin demo' : 'Continue to read-only demo'}
+            {isLocalHost ? 'Continue as local admin demo' : 'Continue to interactive demo'}
           </button>
 
           <p className="login-help">Need access? Contact your company administrator.</p>
