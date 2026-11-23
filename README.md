@@ -22,7 +22,7 @@ Monorepo: `apps/web` (Next.js), `apps/api` (NestJS + Prisma), `apps/mobile` (Flu
 ## Web experience
 - Public company website: http://localhost:3000
 - Team sign-in: http://localhost:3000/login
-- Local demo sign-in is served by the web app as `SUPER_ADMIN` when `DEV_LOGIN_ENABLED=true` in the repository-root `.env`; keep it disabled outside local development. Demo credentials and signed tokens do not replace the API's production authentication.
+- Local demo sign-in is available from the login page as `SUPER_ADMIN` when `DEV_LOGIN_ENABLED=true` in the repository-root `.env`; it is restricted to local development and disabled in production. Demo access does not replace the API's production authentication.
 - Operations dashboard: http://localhost:3000/dashboard
 - Project progress workspace: http://localhost:3000/progress
 - Public site service cards expand into accessible capability details; project records remain in the authenticated team workspace.

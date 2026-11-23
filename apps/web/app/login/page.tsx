@@ -13,26 +13,21 @@ type LoginResponse = {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [identifier, setIdentifier] = useState('demo.admin@rtinfra.local');
-  const [password, setPassword] = useState('1234');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function signIn(payload: { email?: string; mobile?: string; password?: string; demo?: boolean }, userEmail: string) {
     setError('');
     setSubmitting(true);
 
     try {
-      const isEmail = identifier.includes('@');
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          [isEmail ? 'email' : 'mobile']: identifier.trim(),
-          password,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -57,13 +52,23 @@ export default function LoginPage() {
       sessionStorage.setItem('accessToken', result.accessToken);
       sessionStorage.setItem('refreshToken', result.refreshToken);
       sessionStorage.setItem('userRole', result.role);
-      sessionStorage.setItem('userEmail', identifier.trim());
+      sessionStorage.setItem('userEmail', userEmail);
       router.replace('/dashboard');
     } catch {
       setError('Unable to connect to the sign-in service. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmedIdentifier = identifier.trim();
+    const isEmail = trimmedIdentifier.includes('@');
+    void signIn({
+      [isEmail ? 'email' : 'mobile']: trimmedIdentifier,
+      password,
+    }, trimmedIdentifier);
   }
 
   return (
@@ -140,6 +145,17 @@ export default function LoginPage() {
               {submitting ? <><span className="login-spinner" />Signing in…</> : 'Sign in'}
             </button>
           </form>
+
+          {process.env.NODE_ENV !== 'production' && (
+            <button
+              className="login-demo-submit"
+              disabled={submitting}
+              onClick={() => void signIn({ demo: true }, 'Local demo')}
+              type="button"
+            >
+              Continue without an account (local demo)
+            </button>
+          )}
 
           <p className="login-help">Need access? Contact your company administrator.</p>
           <div className="login-privacy"><LockKeyhole size={13} /> Your account is protected with secure authentication</div>

@@ -186,6 +186,9 @@ button, input, select { font: inherit; }
 .login-submit { width: 100%; height: 48px; margin-top: 24px; border: 0; border-radius: 9px; color: white; background: linear-gradient(100deg,#df6417,#f18336); font-size: 13px; font-weight: 750; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px; box-shadow: 0 7px 16px rgba(229,104,24,.18); transition: transform .18s,box-shadow .18s,opacity .18s; }
 .login-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(229,104,24,.25); }
 .login-submit:disabled { opacity: .7; cursor: wait; }
+.login-demo-submit { width: 100%; min-height: 44px; margin-top: 12px; border: 1px solid #e4e8ee; border-radius: 9px; color: #475467; background: white; font-size: 12px; font-weight: 650; cursor: pointer; }
+.login-demo-submit:hover:not(:disabled) { background: #f8fafc; border-color: #cbd2dc; }
+.login-demo-submit:disabled { opacity: .7; cursor: wait; }
 .login-spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.45); border-top-color: white; border-radius: 50%; animation: login-spin .7s linear infinite; }
 @keyframes login-spin { to { transform: rotate(360deg); } }
 .login-error { padding: 10px 12px; margin: 14px 0 0; border: 1px solid #f4caca; border-radius: 8px; background: #fff7f7; color: #ad3434; font-size: 12px; line-height: 1.5; }

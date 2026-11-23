@@ -5,12 +5,13 @@ import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 
-loadEnvConfig(path.resolve(process.cwd(), '../..'));
+loadEnvConfig(path.resolve(process.cwd(), '../..'), process.env.NODE_ENV !== 'production', console, true);
 
 type LoginBody = {
   email?: unknown;
   mobile?: unknown;
   password?: unknown;
+  demo?: unknown;
 };
 
 function equalsSecret(left: string, right: string) {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
   const hostname = host ? new URL(`http://${host}`).hostname.replace(/^\[|\]$/g, '') : '';
   const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(hostname);
 
-  if (process.env.DEV_LOGIN_ENABLED !== 'true' || !isLocalHost) {
+  if (process.env.DEV_LOGIN_ENABLED !== 'true' || !isLocalHost || process.env.NODE_ENV === 'production') {
     return NextResponse.json({ message: 'Local demo sign-in is disabled.' }, { status: 404 });
   }
 
@@ -58,8 +59,9 @@ export async function POST(request: Request) {
       : '';
   const submittedPassword = typeof body.password === 'string' ? body.password : '';
 
-  if (!equalsSecret(submittedIdentifier.toLowerCase(), configuredIdentifier.toLowerCase())
-    || !equalsSecret(submittedPassword, configuredPassword)) {
+  if (body.demo !== true
+    && (!equalsSecret(submittedIdentifier.toLowerCase(), configuredIdentifier.toLowerCase())
+      || !equalsSecret(submittedPassword, configuredPassword))) {
     return NextResponse.json({ message: 'The email/mobile number or password is incorrect.' }, { status: 401 });
   }
 
