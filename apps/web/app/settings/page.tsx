@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const [role, setRole] = useState('—');
   const [apiStatus, setApiStatus] = useState('Checking connection…');
   const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState('');
 
   useEffect(() => {
     setEmail(sessionStorage.getItem('userEmail') ?? 'Not signed in');
@@ -29,8 +30,17 @@ export default function SettingsPage() {
     return () => controller.abort();
   }, []);
 
-  function signOut() {
+  async function signOut() {
     setSigningOut(true);
+    setSignOutError('');
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('The sign-out request was rejected.');
+    } catch {
+      setSigningOut(false);
+      setSignOutError('Could not end the session. Please try again.');
+      return;
+    }
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('refreshToken');
     sessionStorage.removeItem('userRole');
@@ -73,6 +83,7 @@ export default function SettingsPage() {
           <div className="settings-card-icon"><ShieldCheck size={19} /></div>
           <div><p className="eyebrow">SECURITY</p><h2>Session controls</h2></div>
           <p className="settings-card-note">Signing out clears this browser’s authentication tokens and returns you to the sign-in page.</p>
+          {signOutError && <p className="login-error" role="alert">{signOutError}</p>}
           <button className="settings-signout-button" type="button" disabled={signingOut} onClick={signOut}>
             <LogOut size={16} />{signingOut ? 'Signing out…' : 'Sign out'}
           </button>

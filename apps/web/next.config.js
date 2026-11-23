@@ -2,7 +2,7 @@
 const path = require('path');
 const { loadEnvConfig } = require('@next/env');
 
-loadEnvConfig(path.resolve(__dirname, '../..'));
+loadEnvConfig(path.resolve(__dirname, '../..'), process.env.NODE_ENV !== 'production', console, true);
 
 const nextConfig = {};
 

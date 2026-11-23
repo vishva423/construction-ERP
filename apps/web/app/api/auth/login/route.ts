@@ -95,5 +95,18 @@ export async function POST(request: Request) {
     jti: randomUUID(),
   }, refreshSecret);
 
-  return NextResponse.json({ accessToken, refreshToken, role, ...(body.demo === true ? { demo: true } : {}) });
+  const response = NextResponse.json({
+    accessToken,
+    refreshToken,
+    role,
+    ...(body.demo === true ? { demo: true } : {}),
+  });
+  response.cookies.set('erp_access', accessToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 15 * 60,
+  });
+  return response;
 }
