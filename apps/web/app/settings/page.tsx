@@ -35,6 +35,7 @@ export default function SettingsPage() {
     sessionStorage.removeItem('refreshToken');
     sessionStorage.removeItem('userRole');
     sessionStorage.removeItem('userEmail');
+    sessionStorage.removeItem('demoMode');
     router.replace('/login');
   }
 

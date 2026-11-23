@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bell,
@@ -53,7 +53,9 @@ function MapPinIcon({ size = 18 }: { size?: number }) {
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -62,6 +64,14 @@ export function AdminShell({ children }: { children: ReactNode }) {
     const query = searchQuery.trim().toLowerCase();
     return query ? navItems.filter(({ label }) => label.toLowerCase().includes(query)) : navItems;
   }, [searchQuery]);
+
+  useEffect(() => {
+    const isDemoMode = sessionStorage.getItem('demoMode') === 'true';
+    setDemoMode(isDemoMode);
+    if (isDemoMode && pathname !== '/demo' && !publicRoutes.has(pathname)) {
+      router.replace('/demo');
+    }
+  }, [pathname, router]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -90,8 +100,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('mousedown', closeOnOutsideClick);
   }, [searchOpen]);
 
-  if (publicRoutes.has(pathname) || pathname.startsWith('/(auth)')) {
+  if (pathname === '/demo' || publicRoutes.has(pathname) || pathname.startsWith('/(auth)')) {
     return <>{children}</>;
+  }
+
+  if (demoMode) {
+    return <main className="demo-access-notice">Read-only demo access only. <Link href="/demo">Return to demo</Link></main>;
   }
 
   return (

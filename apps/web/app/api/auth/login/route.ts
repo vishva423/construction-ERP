@@ -28,19 +28,28 @@ function signToken(payload: Record<string, string | number>, secret: string) {
 }
 
 export async function POST(request: Request) {
-  const host = request.headers.get('host');
-  const hostname = host ? new URL(`http://${host}`).hostname.replace(/^\[|\]$/g, '') : '';
-  const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(hostname);
-
-  if (process.env.DEV_LOGIN_ENABLED !== 'true' || !isLocalHost || process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ message: 'Local demo sign-in is disabled.' }, { status: 404 });
-  }
-
   let body: LoginBody;
   try {
     body = await request.json() as LoginBody;
   } catch {
     return NextResponse.json({ message: 'A valid JSON request body is required.' }, { status: 400 });
+  }
+
+  const host = request.headers.get('host');
+  const hostname = host ? new URL(`http://${host}`).hostname.replace(/^\[|\]$/g, '') : '';
+  const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(hostname);
+  const isLocalAdminDemo = body.demo === true
+    && isLocalHost
+    && process.env.DEV_LOGIN_ENABLED === 'true'
+    && process.env.NODE_ENV !== 'production';
+
+  if (body.demo === true && !isLocalAdminDemo) {
+    return NextResponse.json({ demo: true, role: 'DEMO_VIEWER' });
+  }
+
+  if (!isLocalAdminDemo
+    && (process.env.DEV_LOGIN_ENABLED !== 'true' || !isLocalHost || process.env.NODE_ENV === 'production')) {
+    return NextResponse.json({ message: 'Local demo sign-in is disabled.' }, { status: 404 });
   }
 
   const configuredIdentifier = process.env.DEV_LOGIN_EMAIL?.trim();
@@ -59,7 +68,7 @@ export async function POST(request: Request) {
       : '';
   const submittedPassword = typeof body.password === 'string' ? body.password : '';
 
-  if (body.demo !== true
+  if (!isLocalAdminDemo
     && (!equalsSecret(submittedIdentifier.toLowerCase(), configuredIdentifier.toLowerCase())
       || !equalsSecret(submittedPassword, configuredPassword))) {
     return NextResponse.json({ message: 'The email/mobile number or password is incorrect.' }, { status: 401 });
@@ -85,5 +94,5 @@ export async function POST(request: Request) {
     jti: randomUUID(),
   }, refreshSecret);
 
-  return NextResponse.json({ accessToken, refreshToken, role });
+  return NextResponse.json({ accessToken, refreshToken, role, ...(body.demo === true ? { demo: true } : {}) });
 }

@@ -2,13 +2,14 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 
 type LoginResponse = {
-  accessToken: string;
-  refreshToken: string;
+  accessToken?: string;
+  refreshToken?: string;
   role: string;
+  demo?: boolean;
 };
 
 export default function LoginPage() {
@@ -18,6 +19,11 @@ export default function LoginPage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [isLocalHost, setIsLocalHost] = useState(false);
+
+  useEffect(() => {
+    setIsLocalHost(['localhost', '127.0.0.1', '::1'].includes(window.location.hostname));
+  }, []);
 
   async function signIn(payload: { email?: string; mobile?: string; password?: string; demo?: boolean }, userEmail: string) {
     setError('');
@@ -44,6 +50,16 @@ export default function LoginPage() {
       }
 
       const result = await response.json() as LoginResponse;
+      if (payload.demo && result.demo === true && result.role === 'DEMO_VIEWER') {
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('refreshToken');
+        sessionStorage.setItem('userRole', result.role);
+        sessionStorage.setItem('userEmail', 'Demo visitor');
+        sessionStorage.setItem('demoMode', 'true');
+        router.replace('/demo');
+        return;
+      }
+
       if (!result.accessToken || !result.refreshToken) {
         setError('The sign-in service returned an invalid response. Please contact your administrator.');
         return;
@@ -53,6 +69,7 @@ export default function LoginPage() {
       sessionStorage.setItem('refreshToken', result.refreshToken);
       sessionStorage.setItem('userRole', result.role);
       sessionStorage.setItem('userEmail', userEmail);
+      sessionStorage.removeItem('demoMode');
       router.replace('/dashboard');
     } catch {
       setError('Unable to connect to the sign-in service. Check your connection and try again.');
@@ -146,16 +163,14 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {process.env.NODE_ENV !== 'production' && (
-            <button
-              className="login-demo-submit"
-              disabled={submitting}
-              onClick={() => void signIn({ demo: true }, 'Local demo')}
-              type="button"
-            >
-              Continue without an account (local demo)
-            </button>
-          )}
+          <button
+            className="login-demo-submit"
+            disabled={submitting}
+            onClick={() => void signIn({ demo: true }, 'Demo visitor')}
+            type="button"
+          >
+            {isLocalHost ? 'Continue as local admin demo' : 'Continue to read-only demo'}
+          </button>
 
           <p className="login-help">Need access? Contact your company administrator.</p>
           <div className="login-privacy"><LockKeyhole size={13} /> Your account is protected with secure authentication</div>
